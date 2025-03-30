@@ -8,23 +8,20 @@ import { login } from '../Services/HomeService';
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Show success message if redirected from Signup page
     useEffect(() => {
         if (location.state?.successMessage) {
             toast.success(location.state.successMessage);
-    
-            // ✅ Clear state without navigating by modifying history
             window.history.replaceState({}, document.title);
         }
     }, [location]);    
     
-
     const handleLogin = async (e) => {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault();
 
         if (!email.trim()) {
             toast.warning('Please enter email');
@@ -32,17 +29,16 @@ export default function LoginPage() {
             toast.warning('Please enter password');
         } else {
             try {
-                const result = await login(email, password); // API call
+                setLoading(true);
+                const result = await login(email, password);
                 const { loginResponse, jwt } = result;
                 if (loginResponse.message === 'success') {
-                    
                     const token = jwt;
                     sessionStorage.setItem('token', token);
-                    sessionStorage.setItem('id',loginResponse.id)
+                    sessionStorage.setItem('id', loginResponse.id);
                     
                     if (loginResponse.role === 'ROLE_CUSTOMER') {
                         navigate('/customer-dashboard', { state: { successMessage: 'Login Successful!' } });
-
                     } else {
                         navigate('/admin-dashboard', { state: { successMessage: 'Login Successful!' } });
                     }
@@ -51,6 +47,8 @@ export default function LoginPage() {
                 }
             } catch (error) {
                 toast.error('Login failed. Please check email and password then try again.');
+            } finally {
+                setLoading(false);
             }
         }
     };
@@ -100,9 +98,10 @@ export default function LoginPage() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         type="submit"
-                        className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+                        disabled={loading}
+                        className={`w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition flex items-center justify-center ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                        Login
+                        {loading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : 'Login'}
                     </motion.button>
                 </form>
 
@@ -114,7 +113,6 @@ export default function LoginPage() {
                 </p>
             </motion.div>
 
-            {/* Animated Overlay Effect */}
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 0.4 }}
