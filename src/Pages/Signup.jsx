@@ -16,6 +16,7 @@ export default function SignupPage() {
         password: '',
         confirmPassword: ''
     });
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,62 +25,72 @@ export default function SignupPage() {
     const navigate = useNavigate();
 
     const handleSignup = async (event) => {
-        event.preventDefault();  // ✅ Prevents default form submission behavior
-
+        event.preventDefault();  
         if (!formData.name.trim()) {
             toast.warning('Please enter name.');
+            return;
         }
         else if (!formData.email.trim()) {
             toast.warning('Please enter email.');
+            return;
         }
         else if (!formData.phone.trim()) {
             toast.warning('Please enter phone.');
+            return;
         } 
         else if (!formData.address.trim()) {
             toast.warning('Please enter address.');
+            return;
         } 
         else if (!formData.position.trim()) {
             toast.warning('Please enter position.');
+            return;
         } 
         else if (!formData.company.trim()) {
             toast.warning('Please enter company.');
+            return;
         } 
         else if (!formData.password.trim() || !formData.confirmPassword.trim()) {
             toast.warning('Please enter password.');
+            return;
         } 
-        else if (formData.password !== formData.confirmPassword) {  // ✅ Corrected condition
+        else if (formData.password !== formData.confirmPassword) {  
             toast.warning('Passwords do not match!');
             return;
-        } else {
-            try {
-                const result = await register(
-                    formData.name,
-                    formData.email,
-                    formData.phone,
-                    formData.address,
-                    formData.position,
-                    formData.company,
-                    formData.password
-                );
+        }
+        
+        try {
+            setLoading(true);
+            await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
+            const result = await register(
+                formData.name,
+                formData.email,
+                formData.phone,
+                formData.address,
+                formData.position,
+                formData.company,
+                formData.password
+            );
 
-                if (result.message === 'success') {
-                    setFormData({
-                        name: '',
-                        email: '',
-                        phone: '',
-                        address: '',
-                        position: '',
-                        company: '',
-                        password: '',
-                        confirmPassword: ''
-                    });
-                    navigate('/login', { state: { successMessage: 'Signup successful! Please log in.' } });
-                } else {
-                    toast.error(result.message);
-                }
-            } catch (error) {
-                toast.error('Something went wrong. Please try again later.');
+            if (result.message === 'success') {
+                setFormData({
+                    name: '',
+                    email: '',
+                    phone: '',
+                    address: '',
+                    position: '',
+                    company: '',
+                    password: '',
+                    confirmPassword: ''
+                });
+                navigate('/login', { state: { successMessage: 'Signup successful! Please log in.' } });
+            } else {
+                toast.error(result.message);
             }
+        } catch (error) {
+            toast.error('Something went wrong. Please try again later.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -135,9 +146,17 @@ export default function SignupPage() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         type="submit"
-                        className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg shadow-md hover:from-blue-600 hover:to-blue-700 transition"
+                        disabled={loading}
+                        className={`w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg shadow-md hover:from-blue-600 hover:to-blue-700 transition flex items-center justify-center ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                        Sign Up
+                        {loading ? (
+                            <>
+                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                <span className="ml-2">Processing...</span>
+                            </>
+                        ) : (
+                            'Sign Up'
+                        )}
                     </motion.button>
                 </form>
 
