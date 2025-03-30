@@ -2,11 +2,18 @@ import axios from 'axios'
 import { createUrl } from './utils'
 
 function getAuthHeaders() {
-    const token = sessionStorage.getItem('token'); // Ensure token is stored
-    return {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
+    const token = sessionStorage.getItem('token'); // Get token from session storage
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true' // ✅ Automatically included
     };
+
+    if (token) {
+        headers.Authorization = `Bearer ${token}`; // ✅ Add only if token exists
+    }
+
+    return headers;
 }
 
 export async function getPendingOrders(){
