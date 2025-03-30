@@ -1,3 +1,3 @@
 export const config = {
-  serverUrl: 'http://localhost:6969',
+  serverUrl: 'http://optimistic-embrace-production.up.railway.app:6969',
 }
