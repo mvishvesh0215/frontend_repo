@@ -5,8 +5,7 @@ function getAuthHeaders() {
     const token = sessionStorage.getItem('token'); // Get token from session storage
 
     const headers = {
-        'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true' // ✅ Automatically included
+        'Content-Type': 'application/json'
     };
 
     if (token) {
